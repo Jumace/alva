@@ -13,6 +13,11 @@ export class Project {
 		this.name = name;
 	}
 
+	/**
+	 * Loads and returns a project from a given JSON object.
+	 * @param jsonObject The JSON object to load from.
+	 * @return A new project object containing the loaded data.
+	 */
 	public static fromJsonObject(json: JsonObject, store: Store): Project {
 		const project: Project = new Project(json.id as string, json.name as string);
 
@@ -40,6 +45,10 @@ export class Project {
 		return this.pages as MobX.IObservableArray<PageRef>;
 	}
 
+	/**
+	 * Serializes the project into a JSON object for persistence.
+	 * @return The JSON object to be persisted.
+	 */
 	public toJsonObject(): JsonObject {
 		const pagesJsonObject: JsonObject[] = [];
 		this.pages.forEach(pageRef => {

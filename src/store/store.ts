@@ -425,14 +425,34 @@ export class Store {
 		return this.patternRoot ? this.patternRoot.searchPatterns(term) : [];
 	}
 
+	/**
+	 * Sets the element currently in the clipboard, or undefined if there is none.
+	 * Note: The element is cloned lazily, so you don't need to clone it when setting.
+	 * @return The element currently in the clipboard, or undefined if there is none.
+	 * @see getClipboardElement
+	 */
 	public setClipboardElement(clipboardElement: PageElement): void {
 		this.clipboardElement = clipboardElement;
 	}
 
+	/**
+	 * Sets whether the currently selected element also has focus.
+	 * In this case, keyboard operations such as copy, cut, or delete
+	 * should operate on that element.
+	 * @param elementFocussed Whether the currently selected element also has focus.
+	 * @see setSelectedElement()
+	 */
 	public setElementFocussed(elementFocussed: boolean): void {
 		this.elementFocussed = elementFocussed;
 	}
 
+	/**
+	 * Loads a given JSON object into the store as current page.
+	 * Used internally within the store, do not use from UI components.
+	 * Also unselects any selected element.
+	 * @param json The JSON object to set
+	 * @param id The project's ID.
+	 */
 	public setPageFromJsonInternal(json: JsonObject, id: string): void {
 		MobX.transaction(() => {
 			this.currentPage = json ? Page.fromJsonObject(json, id, this) : undefined;
@@ -440,14 +460,30 @@ export class Store {
 		});
 	}
 
+	/**
+	 * Sets the current search term in the patterns list, or an empty string if there is none.
+	 * @param patternSearchTerm The current pattern search term or an empty string.
+	 */
 	public setPatternSearchTerm(patternSearchTerm: string): void {
 		this.patternSearchTerm = patternSearchTerm;
 	}
 
+	/**
+	 * Sets the element that is currently being dragged, or undefined if there is none.
+	 * @param rearrangeElement The rearrange element or undefined.
+	 */
 	public setRearrangeElement(rearrangeElement: PageElement): void {
 		this.rearrangeElement = rearrangeElement;
 	}
 
+	/**
+	 * Sets the currently selected element in the element list.
+	 * The properties pane shows the properties of this element,
+	 * and keyboard commands like cut, copy, or delete operate on this element.
+	 * May be empty if no element is selected.
+	 * @param selectedElement The selected element or undefined.
+	 * @see setElementFocussed
+	 */
 	public setSelectedElement(selectedElement: PageElement | undefined): void {
 		this.selectedElement = selectedElement;
 	}

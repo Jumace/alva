@@ -12,6 +12,11 @@ export class PageRef {
 		this.setProject(project);
 	}
 
+	/**
+	 * Loads and returns a page reference from a given JSON object.
+	 * @param jsonObject The JSON object to load from.
+	 * @return A new page reference object containing the loaded data.
+	 */
 	public static fromJsonObject(json: JsonObject, project: Project): PageRef {
 		return new PageRef(json.id as string, json.name as string, project);
 	}
@@ -44,6 +49,10 @@ export class PageRef {
 		}
 	}
 
+	/**
+	 * Serializes the page reference into a JSON object for persistence.
+	 * @return The JSON object to be persisted.
+	 */
 	public toJsonObject(): JsonObject {
 		return {
 			id: this.id,

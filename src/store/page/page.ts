@@ -12,6 +12,11 @@ export class Page {
 		this.name = 'New Page';
 	}
 
+	/**
+	 * Loads and returns a page from a given JSON object.
+	 * @param jsonObject The JSON object to load from.
+	 * @return A new page object containing the loaded data.
+	 */
 	public static fromJsonObject(json: JsonObject, id: string, store: Store): Page {
 		const page = new Page(id, store);
 		page.name = json.name as string;
@@ -32,6 +37,10 @@ export class Page {
 		return this.root as PageElement;
 	}
 
+	/**
+	 * Serializes the page into a JSON object for persistence.
+	 * @return The JSON object to be persisted.
+	 */
 	public toJsonObject(): JsonObject {
 		return { name: this.name, root: this.root ? this.root.toJsonObject() : undefined };
 	}
