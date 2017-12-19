@@ -1,8 +1,12 @@
+import Button, { Order } from '../lsg/patterns/button';
 import { Chrome } from './container/chrome';
-import { WebviewTag } from 'electron';
+import { colors } from '../lsg/patterns/colors';
+import Copy, { Size as CopySize } from '../lsg/patterns/copy';
+import { remote, WebviewTag } from 'electron';
 import ElementPane from '../lsg/patterns/panes/element-pane';
 import { ElementList } from './container/element_list';
 import globalStyles from '../lsg/patterns/global-styles';
+import { Headline } from '../lsg/patterns/headline';
 import { IconName, IconRegistry } from '../lsg/patterns/icons';
 import { JsonObject } from '../store/json';
 import Layout, { MainArea, SideBar } from '../lsg/patterns/layout';
@@ -17,14 +21,18 @@ import PreviewPane from '../lsg/patterns/panes/preview-pane';
 import { ProjectList } from './container/project_list';
 import PropertyPane from '../lsg/patterns/panes/property-pane';
 import { PropertyList } from './container/property_list';
+const { dialog } = remote;
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
+import Space, { Size as SpaceSize } from '../lsg/patterns/space';
+import SplashScreen from '../lsg/patterns/splash-screen';
 import { Store } from '../store/store';
 
 globalStyles();
 
 interface AppProps {
 	store: Store;
+	page?: Page;
 }
 
 @observer
@@ -48,6 +56,7 @@ class App extends React.Component<AppProps> {
 		this.handleTabNaviagtionClick = this.handleTabNaviagtionClick.bind(this);
 		this.handleMainWindowClick = this.handleMainWindowClick.bind(this);
 		this.handleChromeToggle = this.handleChromeToggle.bind(this);
+		this.handleCreateNewSpaceClick = this.handleCreateNewSpaceClick.bind(this);
 	}
 
 	private handleMainWindowClick(): void {
@@ -67,38 +76,69 @@ class App extends React.Component<AppProps> {
 		} catch (error) {
 			// Ignored
 		}
+		if (project) {
+			return (
+				<Layout directionVertical handleClick={this.handleMainWindowClick}>
+					<Chrome
+						title={title}
+						handleClick={this.handleChromeToggle}
+						open={this.projectListVisible}
+					>
+						<ProjectList store={this.props.store} open={this.projectListVisible} />
+					</Chrome>
+					<MainArea>
+						<SideBar directionVertical hasPaddings>
+							<ElementPane>
+								<PageList store={this.props.store} />
+								<ElementList store={this.props.store} />
+							</ElementPane>
+							<PatternsPane>
+								<PatternListContainer store={this.props.store} />
+							</PatternsPane>
+						</SideBar>
 
-		return (
-			<Layout directionVertical handleClick={this.handleMainWindowClick}>
-				<Chrome
-					title={title}
-					handleClick={this.handleChromeToggle}
-					open={this.projectListVisible}
-				>
-					<ProjectList store={this.props.store} open={this.projectListVisible} />
-				</Chrome>
-				<MainArea>
-					<SideBar directionVertical hasPaddings>
-						<ElementPane>
-							<PageList store={this.props.store} />
-							<ElementList store={this.props.store} />
-						</ElementPane>
-						<PatternsPane>
-							<PatternListContainer store={this.props.store} />
-						</PatternsPane>
-					</SideBar>
-
-					<PreviewPane />
-					<SideBar directionVertical hasPaddings>
-						<PropertyPane>
-							<PropertyList store={this.props.store} />
-						</PropertyPane>
-					</SideBar>
-					<IconRegistry names={IconName} />
-				</MainArea>
-				{DevTools ? <DevTools /> : ''}
-			</Layout>
-		);
+						<PreviewPane />
+						<SideBar directionVertical hasPaddings>
+							<PropertyPane>
+								<PropertyList store={this.props.store} />
+							</PropertyPane>
+						</SideBar>
+						<IconRegistry names={IconName} />
+					</MainArea>
+					{DevTools ? <DevTools /> : ''}
+				</Layout>
+			);
+		} else {
+			return (
+				<Layout directionVertical handleClick={this.handleMainWindowClick}>
+					<Chrome />
+					<MainArea>
+						<SplashScreen>
+							<Space sizeBottom={SpaceSize.L}>
+								<Headline textColor={colors.grey20} order={2}>
+									Getting started with Alva
+								</Headline>
+							</Space>
+							<Space sizeBottom={SpaceSize.XXXL}>
+								<Copy size={CopySize.M} textColor={colors.grey20}>
+									You can open an existing Alva space or create a new one based on our
+									designkit including some basic components to kickstart your project.
+								</Copy>
+							</Space>
+							<Space sizeBottom={SpaceSize.S}>
+								<Button handleClick={this.handleCreateNewSpaceClick} order={Order.Primary}>
+									Create new Alva space
+								</Button>
+							</Space>
+							<Copy size={CopySize.S} textColor={colors.grey50}>
+								or open existing Alva space
+							</Copy>
+						</SplashScreen>
+					</MainArea>
+					{DevTools ? <DevTools /> : ''}
+				</Layout>
+			);
+		}
 	}
 
 	@MobX.action
@@ -109,6 +149,13 @@ class App extends React.Component<AppProps> {
 	@MobX.action
 	protected handleChromeToggle(evt: React.MouseEvent<HTMLElement>): void {
 		this.projectListVisible = !this.projectListVisible;
+	}
+
+	protected handleCreateNewSpaceClick(): void {
+		dialog.showOpenDialog({ properties: ['openDirectory'] }, filePaths => {
+			store.openStyleguide(filePaths[0]);
+			store.openFirstPage();
+		});
 	}
 }
 
